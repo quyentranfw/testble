@@ -62,9 +62,6 @@ void blink_task(void *pvParameter) {
 
 
 void app_main() {
-
-	xTaskCreate(blink_task, "blink_task", 10000, NULL, 1, NULL);
-
     esp_err_t ret;
 
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
@@ -93,7 +90,6 @@ void app_main() {
     esp_ble_gatts_register_callback(gatts_event_handler);
     esp_ble_gap_register_callback(gap_event_handler);
     esp_ble_gatts_app_register(BLE_PROFILE_APP_ID);
-	//vTaskDelay(10000 / portTICK_RATE_MS);
-	//timeblink = 2000;
+
     return;
 }

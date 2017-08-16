@@ -81,8 +81,8 @@ esp_attr_value_t gatts_demo_descr2_val = {
 static uint8_t ble_service_uuid128[BLE_SERVICE_UUID_SIZE] = {
     /* LSB <--------------------------------------------------------------------------------> MSB */
     //first uuid, 16bit, [12],[13] is the value
-	// 0x9E, 0xCA, 0xDC, 0x24, 0x0E, 0xE5, 0xA9, 0xE0, 0x93, 0xF3, 0xA3, 0xB5, 0x01, 0x00, 0x40, 0x6E,
-     0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0xAB, 0xCD, 0x00, 0x00,
+	 0x9E, 0xCA, 0xDC, 0x24, 0x0E, 0xE5, 0xA9, 0xE0, 0x93, 0xF3, 0xA3, 0xB5, 0x01, 0x00, 0x40, 0x6E,
+    // 0xXfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0xAB, 0xCD, 0x00, 0x00,
     //0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
@@ -196,7 +196,7 @@ static struct gatts_char_inst gl_char[GATTS_CHAR_NUM] = {
 };
 
 void char1_read_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
-	ESP_LOGI(GATTS_TAG, "char1_read_handler %d - %x\n", param->read.handle, param->read.handle);
+	ESP_LOGI(GATTS_TAG, "char1_read_handler %d\n", param->read.handle);
 
 	esp_gatt_rsp_t rsp;
 	memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
@@ -214,7 +214,7 @@ void char1_read_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_
 }
 
 void char2_read_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
-	ESP_LOGI(GATTS_TAG, "char2_read_handler %d -%x \n", param->read.handle, param->read.handle);
+	ESP_LOGI(GATTS_TAG, "char2_read_handler %d\n", param->read.handle);
 
 	esp_gatt_rsp_t rsp;
 	memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
@@ -286,7 +286,7 @@ void char2_notify_handle(esp_gatt_if_t gatts_if, uint16_t conn_id) {
 }
 
 void char1_write_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
-	ESP_LOGI(GATTS_TAG, "char1_write_handler %d - %x\n", param->write.handle,param->write.handle);
+	ESP_LOGI(GATTS_TAG, "char1_write_handler %d\n", param->write.handle);
 
 	if (gl_char[0].char_val!=NULL) {
 		ESP_LOGI(GATTS_TAG, "char1_write_handler char_val %d\n",param->write.len);
@@ -310,7 +310,7 @@ void char1_write_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 }
 
 void char2_write_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
-	ESP_LOGI(GATTS_TAG, "char2_write_handler %d - %x\n", param->write.handle,param->write.handle);
+	ESP_LOGI(GATTS_TAG, "char2_write_handler %d\n", param->write.handle);
 
 	if (gl_char[1].char_val!=NULL) {
 		ESP_LOGI(GATTS_TAG, "char2_write_handler char_val %d\n",param->write.len);
@@ -488,9 +488,6 @@ void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts
 	esp_err_t ret;
 	switch (event) {
     case ESP_GATTS_REG_EVT:
-		printf("\nESP_GATTS_REG_EVTDDDDDDDDDDDDDDDDDDDDDDDDD\n");
-		timeblink = 200;
-		printf("\t%s, timeblink = %d\n",__func__,timeblink);
         ESP_LOGI(GATTS_TAG, "REGISTER_APP_EVT, status %d, app_id %d", param->reg.status, param->reg.app_id);
         gl_profile.service_id.is_primary = true;
         gl_profile.service_id.id.inst_id = 0x00;
@@ -533,7 +530,7 @@ void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts
     case ESP_GATTS_UNREG_EVT:
         break;
     case ESP_GATTS_CREATE_EVT:
-        ESP_LOGI(GATTS_TAG, "CREATE_SERVICE_EVT, status %d,  service_handle %d - %x \n", param->create.status, param->create.service_handle,param->create.service_handle);
+        ESP_LOGI(GATTS_TAG, "CREATE_SERVICE_EVT, status %d,  service_handle %d\n", param->create.status, param->create.service_handle);
         gl_profile.service_handle = param->create.service_handle;
         gl_profile.char_uuid.len = gl_char[0].char_uuid.len;
         gl_profile.char_uuid.uuid.uuid16 = gl_char[0].char_uuid.uuid.uuid16;
@@ -593,15 +590,9 @@ void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts
                  param->connect.remote_bda[3], param->connect.remote_bda[4], param->connect.remote_bda[5],
                  param->connect.is_connected);
         gl_profile.conn_id = param->connect.conn_id;
-		printf("\nCONNECTEDDDDDDDDDDDDDDDDDDDDDDDDDD\n");
-		timeblink = 2000;
-		printf("\t%s, timeblink = %d\n",__func__,timeblink);
         break;
     case ESP_GATTS_DISCONNECT_EVT:
         esp_ble_gap_start_advertising(&ble_adv_params);
-		printf("\nDISCONNECTEDDDDDDDDDDDDDDDDDDDDDDDDDD\n");
-		timeblink = 200;
-		printf("\t%s, timeblink = %d\n",__func__,timeblink);
         break;
     case ESP_GATTS_OPEN_EVT:
     case ESP_GATTS_CANCEL_OPEN_EVT:
@@ -640,10 +631,4 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
     }
 
     gatts_profile_event_handler(event, gatts_if, param);
-}
-int getCurrentStatus(){
-	return 0;
-}
-int getTimeBlink(){
-	return timeblink;
 }
